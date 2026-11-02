@@ -111,6 +111,45 @@ sequenceDiagram
 
 ---
 
+## Guía de Descarga, Requisitos y Compilación Paso a Paso
+
+### 1. Requisitos Previos en Windows
+1. **Rust y Cargo** (Edición 2021+):
+   - Descarga e instala desde **[https://rustup.rs](https://rustup.rs)** o mediante `winget`:
+     ```powershell
+     winget install Rustlang.Rustup
+     ```
+2. **Compilador de C/C++** *(necesario tanto para el enlazador de Rust en Windows como para compilar los ports `.c` a `.exe` nativos)*:
+   - **Opción A (Recomendada)**: **Visual Studio Build Tools (C++)** (`cl.exe`):
+     ```powershell
+     winget install Microsoft.VisualStudio.2022.BuildTools --override "--wait --passive --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+     ```
+   - **Opción B**: **GCC (MinGW-w64)** o **Clang (LLVM)** agregados a tu variable `PATH`.
+
+---
+
+### 2. Descargar y Compilar el Emulador desde Cero
+Abre una terminal de **PowerShell** o **CMD** y ejecuta:
+
+```powershell
+# 1. Clonar el repositorio oficial
+git clone https://github.com/iztaneo/NesEmuRust.git
+cd NesEmuRust
+
+# 2. Compilar el ejecutable optimizado (Release con LTO)
+cargo build --release
+
+# 3. Ejecutar la suite de 16 pruebas automatizadas para verificar tu compilación
+cargo test
+
+# 4. Iniciar el emulador (el binario compilado queda en target\release\nes_emu_rust.exe)
+.\target\release\nes_emu_rust.exe
+```
+
+*(También puedes ejecutar directamente el script [`Instalar_NesEmuRust.bat`](Instalar_NesEmuRust.bat) incluido en la raíz para instalar un acceso directo de escritorio).*
+
+---
+
 ## Uso desde Línea de Comandos (CLI) e Interfaz Gráfica (GUI)
 
 ### Modo Interfaz Gráfica (GUI)
@@ -119,23 +158,37 @@ sequenceDiagram
 cargo run --release
 
 # Iniciar el emulador cargando directamente un archivo .nes
-cargo run --release -- "rooms/Contra (USA).nes"
+cargo run --release -- "ruta/a/tu_juego.nes"
 ```
 *(Dentro de la GUI también puedes abrir el panel **`🔧 Debug`** y pulsar **`💾 Exportar .ASM + .C`** o **`🚀 Compilar y Ejecutar Nativo x86 (.EXE)`**).*
 
 ### Modo Línea de Comandos (CLI — Desensamblado y Compilación Nativa)
 ```powershell
 # 1. Solo exportar el ensamblador 6502 (.asm) y el código C (.c) en la carpeta exports/
-cargo run --release -- --dump "rooms/Contra (USA).nes"
+cargo run --release -- --dump "ruta/a/tu_juego.nes"
 
 # 2. Exportar .asm + .c y compilar automáticamente a ejecutable nativo x86/x64 (.exe)
-cargo run --release -- --compile "rooms/Contra (USA).nes"
+cargo run --release -- --compile "ruta/a/tu_juego.nes"
 
 # 3. Exportar, compilar y lanzar inmediatamente el ejecutable nativo independiente
-cargo run --release -- --run-native "rooms/Contra (USA).nes"
+cargo run --release -- --run-native "ruta/a/tu_juego.nes"
 
 # Mostrar ayuda de comandos
 cargo run -- --help
+```
+
+### Compilación Manual de un Archivo `.C` Exportado (Opcional)
+Si deseas compilar manualmente cualquier archivo `exports/<Juego>.c` por tu cuenta desde la terminal:
+
+```powershell
+# Con MSVC (Developer Command Prompt for VS):
+cl.exe /O2 "exports\Juego.c" /Fe:"exports\Juego_native_x64.exe" /link user32.lib gdi32.lib winmm.lib
+
+# Con GCC (MinGW-w64):
+gcc -O2 "exports/Juego.c" -o "exports/Juego_native_x64.exe" -luser32 -lgdi32 -lwinmm
+
+# Con Clang:
+clang -O2 "exports/Juego.c" -o "exports/Juego_native_x64.exe" -luser32 -lgdi32 -lwinmm
 ```
 
 Los archivos generados se guardan en el directorio `exports/`:
