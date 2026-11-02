@@ -1,0 +1,15 @@
+/target
+**/*.rs.bk
+*.pdb
+*.obj
+
+# ROMs comerciales, partidas y exportaciones locales (se conservan en disco local, excluidos de GitHub público)
+/rooms/
+/exports/
+/saves/
+/Release_v1.0/
+*.nes
+*.ips
+*.sav
+*.nst
+*.zip
